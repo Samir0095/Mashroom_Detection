@@ -38,14 +38,14 @@
 \begin{center}
 {\large\bfseries CSE 3207: Artificial Intelligence}\\[1pt]
 {\Large\bfseries Understanding Bayes' Theorem and Na\"ive Bayes Classifier}\\[1pt]
-{\normalsize\textbf{Name:} [Your Name] \quad \textbf{ID:} [Your ID] \quad \textbf{Date:} 14 November 2026}
+{\normalsize\textbf{Name:} Samir Yeasir Ali \quad \textbf{ID:} 2203095 \quad \textbf{Date:} 14 November 2026}
 \end{center}
 
 %================ CHAPTER 1 =================
 \section{Introduction and Background Study}
 
 \subsection{Bayes' Theorem}
-Bayes' theorem is a rule that helps us change our belief when we get new information. First we have some belief about an event, for example ``this mushroom is poisonous''. Then we see some evidence, for example the mushroom has a foul smell. Bayes' theorem tells us how to update our first belief using that evidence \cite{russell2021}. The formula is
+Bayes' theorem helps us to change our belief that was previously fixed after we get new information. First lets suppose we have some belief about a thing, for example ``this mushroom is poisonous''. Then we see some other information and evidence, for example the mushroom has a foul smell. Bayes' theorem tells us how we can update our first belief using that evidence \cite{russell2021}. The formula is
 \begin{equation}
 P(H \mid E) = \frac{P(E \mid H)\, P(H)}{P(E)}
 \end{equation}
@@ -62,7 +62,7 @@ In classification we have a data row with features $x_1,x_2,\dots,x_n$ and we wa
 \begin{equation}
 P(C_k \mid x_1,\dots,x_n) = \frac{P(C_k)\,P(x_1,\dots,x_n \mid C_k)}{P(x_1,\dots,x_n)}
 \end{equation}
-The term $P(x_1,\dots,x_n \mid C_k)$ is very hard to find, because we would need to see every possible combination of feature values many times. Na\"ive Bayes makes it easy with one assumption: given the class, every feature is independent of the others. So
+The term $P(x_1,\dots,x_n \mid C_k)$ is very hard to find, because we have to see every possible combination of feature values many times. Na\"ive Bayes makes it easier with one assumption: given the class, every feature is independent of the others. So
 \begin{equation}
 P(x_1,\dots,x_n \mid C_k) = \prod_{j=1}^{n} P(x_j \mid C_k)
 \end{equation}
@@ -70,10 +70,10 @@ The evidence in the denominator is the same for all classes, so it can be droppe
 \begin{equation}
 \hat{y} = \arg\max_{k}\; P(C_k)\prod_{j=1}^{n} P(x_j \mid C_k)
 \end{equation}
-When every feature is a category (like ``odor = foul''), $P(x_j\mid C_k)$ is found by counting, and this version is called \textbf{Categorical Na\"ive Bayes} \cite{mitchell1997}. I use it in this assignment. In practice we add logarithms instead of multiplying, because many small probabilities multiplied together become too small for the computer.
+When every feature is a category (like ``odor = foul''), $P(x_j\mid C_k)$ is found by counting, and this version is called \textbf{Categorical Na\"ive Bayes} \cite{mitchell1997}. I used it in this assignment. In practice we add logarithms instead of multiplying, because many small probabilities multiplied together become too small for the computer.
 
 \subsection{The ``Na\"ive'' Assumption}
-The model is called na\"ive because it believes that features do not affect each other once the class is known. This is a very simple idea and many times it is not true. Some examples are:
+The model is called na\"ive because it believes that when the class is known then the features do not affect each other. This is a very simple idea and many times it is not true. Some examples are:
 \begin{itemize}
   \item In my own dataset, the colour of the stalk above the ring and the colour below the ring are the same in 62\% of the mushrooms, but the model treats them as two separate pieces of evidence.
   \item In text, words come together (``New'' and ``York''), and in medical data, tumor radius, perimeter and area are strongly connected.
@@ -87,7 +87,7 @@ Na\"ive Bayes is fast, simple, and works well even with small data. It is used i
 \section{Dataset Description}
 
 \subsection{Dataset Selection, Source and Details}
-I selected the \textbf{Mushroom} dataset from the UCI Machine Learning Repository \cite{schlimmer1987}. The records come from the \emph{Audubon Society Field Guide to North American Mushrooms} and describe 23 species of gilled mushrooms. I selected it because all its features are categories, it has missing values, and the two classes are clear, so it matches the preprocessing steps in the assignment well. I downloaded the same file (\texttt{mushrooms.csv}) from a public GitHub copy, and checked that its counts match the UCI description.
+I have selected the \textbf{Mushroom} dataset from the UCI Machine Learning Repository \cite{schlimmer1987}. The records come from the \emph{Audubon Society Field Guide to North American Mushrooms} and describe 23 species of gilled mushrooms. I have selected it because all its features are categorical, it also has missing values, and the two classes are clear. I downloaded the same file (\texttt{mushrooms.csv}) from a public GitHub copy, and checked that its counts match the UCI description.
 
 \begin{table}[H]
 \centering
@@ -110,10 +110,10 @@ The two classes are nearly balanced (51.8\% edible, 48.2\% poisonous), so accura
 
 \subsection{Data Preprocessing}
 \begin{enumerate}[label=\alph*)]
-  \item \textbf{Missing values:} Only \texttt{stalk-root} has missing values, but it is 30.5\% of the rows, which is too many to delete. I kept ``?'' as its own category called \emph{missing}. As a second test I also filled the missing values with the most common value (\emph{bulbous}) and compared both methods in Chapter 4. I also removed the column \texttt{veil-type}, because it has the same single value for every mushroom and so gives no information. This left 21 features.
-  \item \textbf{Encoding:} Every feature is categorical, so each category was changed into an integer code (for example, odor: almond $=0$, creosote $=1$, foul $=2$, \dots). The target was encoded as edible $=0$ and poisonous $=1$. I take \textbf{poisonous as the positive class}, because eating a poisonous mushroom is the dangerous mistake.
-  \item \textbf{Normalization / standardization:} Not used, on purpose. The integer codes are only labels, not real quantities, so mean and standard deviation have no meaning for them.
-  \item \textbf{Train/test split:} I split the data 80/20 using a stratified split (fixed seed 42), so both parts keep the same class ratio. The training set has 6,499 mushrooms (3,366 edible, 3,133 poisonous) and the test set has 1,625 mushrooms (842 edible, 783 poisonous).
+  \item \textbf{Missing values:} Only \texttt{stalk-root} has missing values, but it is 30.5\% of the rows, which is too many to delete. I kept ``?'' as its own category called \emph{missing}. As a second test, I also filled the missing values with the most common value (\emph{bulbous}) and compared both methods in Chapter 4. I also removed the column \texttt{veil-type}, because it has the same single value for every mushroom and so it gives no information. This left 21 features.
+  \item \textbf{Encoding:} Every feature is categorical, so each category was changed into an integer code (for example, odor: almond $=0$, creosote $=1$, foul $=2$, \dots). The target was encoded as edible $=0$ and poisonous $=1$. I have taken \textbf{poisonous as the positive class}, because eating a poisonous mushroom is the dangerous mistake.
+  \item \textbf{Normalization / standardization:} I was not used on purpose, because the integer codes are only labels, not real quantities. So mean and standard deviation have no meaning for them.
+  \item \textbf{Train/test split:} I splited the data into 80/20 using a stratified split (fixed seed 42), so both parts keep the same ratio class. The training set has 6,499 mushrooms (3,366 edible, 3,133 poisonous) and the test set has 1,625 mushrooms (842 edible, 783 poisonous).
 \end{enumerate}
 
 %================ CHAPTER 3 =================
@@ -127,7 +127,12 @@ P(x_j=v \mid c)=\frac{\text{number of class-}c\text{ rows with } x_j=v \; + \;\a
 \]
 where $K_j$ is the number of possible values of feature $j$ and $\alpha=1$ is the Laplace smoothing value. Smoothing is needed because a value that never appeared in a class would otherwise give probability 0 and make the whole product 0.
 
-\textbf{Prediction.} For a new mushroom, the model calculates $\log P(c)+\sum_j \log P(x_j\mid c)$ for each class, and the class with the higher score is the prediction. Dividing by the sum over classes (the evidence) gives the probabilities. The main part of the code is:
+\textbf{Prediction.} For a new mushroom, the model calculates
+$\log P(c)+\sum_j \log P(x_j\mid c)$ for each class, and the class
+with the higher score is the prediction. Dividing by the sum over
+classes (the evidence) gives the probabilities. The main part of the
+code is given below, and the codes and scripts are also available on \\ GitHub:
+\url{https://github.com/Samir0095/Mashroom_Detection}.
 
 \begin{singlespace}
 \begin{lstlisting}
@@ -158,7 +163,7 @@ class CategoricalNaiveBayes:
 \end{lstlisting}
 \end{singlespace}
 
-The classifier was trained on the 6,499 training mushrooms (learned priors: edible 0.518, poisonous 0.482) and then used to predict the labels of the 1,625 unseen test mushrooms. To check my code, I ran scikit-learn's \texttt{CategoricalNB} \cite{pedregosa2011} on the same data. Its predictions were the same as mine for 100\% of the test mushrooms, and its AUC and average precision matched mine too. So my implementation is correct. (scikit-learn was used only for this check.)
+The classifier was trained on the 6,499 training mushrooms (learned priors: edible 0.518, poisonous 0.482) and then used to predict the labels of the 1,625 unseen test mushrooms. To check my code, I ran scikit-learn's \texttt{CategoricalNB} \cite{pedregosa2011} on the same data. Its predictions were the same as mine for 100\% of the test mushrooms, and its AUC and average precision matched mine too. So my implementation was accurate. (scikit-learn was used only for this check.)
 
 %================ CHAPTER 4 =================
 \section{Results and Discussion}
@@ -166,8 +171,8 @@ The classifier was trained on the 6,499 training mushrooms (learned priors: edib
 \subsection{Part A: Model Evaluation}
 TP = poisonous predicted as poisonous, TN = edible predicted as edible, FP = edible wrongly predicted as poisonous, FN = poisonous wrongly predicted as edible. The formulas are:
 \begin{gather*}
-\text{Accuracy}=\frac{TP+TN}{TP+TN+FP+FN},\qquad \text{Precision}=\frac{TP}{TP+FP},\\
-\text{Recall}=\frac{TP}{TP+FN},\qquad F_1=\frac{2\cdot \text{Precision}\cdot \text{Recall}}{\text{Precision}+\text{Recall}}
+\text{Accuracy}=\frac{TP+TN}{TP+TN+FP+FN}, \\ \qquad \\ \text{Precision}=\frac{TP}{TP+FP},\\ \\
+\text{Recall}=\frac{TP}{TP+FN}, \\ \\ \qquad F_1=\frac{2\cdot \text{Precision}\cdot \text{Recall}}{\text{Precision}+\text{Recall}}
 \end{gather*}
 
 \begin{table}[H]
@@ -254,7 +259,7 @@ The \textbf{ROC curve} (Figure~\ref{fig:roc}) plots the true positive rate (reca
 %================ CHAPTER 5 =================
 \section{Conclusion}
 
-In this assignment I studied Bayes' theorem and how the Na\"ive Bayes classifier comes from it with the independence assumption. I built a Categorical Na\"ive Bayes classifier from scratch with NumPy and pandas and tested it on the Mushroom dataset. The main findings are:
+In this assignment I have studied Bayes' theorem and how the Na\"ive Bayes classifier comes from it with the independence assumption. I built a Categorical Na\"ive Bayes classifier from scratch with NumPy and pandas and tested it on the Mushroom dataset. The main findings are:
 \begin{itemize}
   \item The model reached \textbf{95.57\% accuracy}. For the poisonous class, precision was 0.9917, recall 0.9157 and F1-score 0.9522, with an ROC AUC of 0.9982 and average precision of 0.9981.
   \item Training accuracy (95.38\%) and test accuracy (95.57\%) are close, and 5-fold cross-validation gave $95.33\% \pm 0.53\%$, so the model is stable and does not overfit.
@@ -262,7 +267,7 @@ In this assignment I studied Bayes' theorem and how the Na\"ive Bayes classifier
   \item Keeping missing values as a category or filling them with the most common value gave almost the same result.
   \item My code gave the same predictions as the scikit-learn version, which confirms it is correct.
 \end{itemize}
-\textbf{Reflection.} I learned that accuracy alone is not enough: in a safety problem, the type of mistake matters more than the number of mistakes, and the ROC and precision-recall curves helped me see the trade-off. Na\"ive Bayes was fast, easy to build, and good on categorical data, but its independence assumption is not true here (for example, the two stalk colors), and a model with 95.6\% accuracy still should not be trusted alone for deciding if a mushroom is safe to eat. In the future I can try removing repeated features, tuning $\alpha$ by cross-validation, and comparing with a decision tree or logistic regression.
+\textbf{Reflection.} I learned that accuracy alone is not enough: in a safety problem, the type of mistake matters more than the number of mistakes, and the ROC and precision-recall curves helped me to see the trade-off. Na\"ive Bayes was fast, easy to build, and good on categorical data, but its independence assumption is not true here (for example, the two stalk colors), and a model with 95.6\% accuracy still should not be trusted alone for deciding if a mushroom is safe to eat. In the future I can try removing repeated features, tuning $\alpha$ by cross-validation, and comparing with a decision tree or logistic regression.
 
 %================ REFERENCES =================
 {\setstretch{1.0}\footnotesize
